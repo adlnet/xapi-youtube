@@ -55,7 +55,7 @@
 
     // "global" variables read by ADL.XAPITrackYoutube
     var actor = ADL.XAPIWrapper.lrs['actor'];
-    var videoActivity = {"id":"https://www.youtube.com/watch?v=" + video, "definition":{"name": {"en-US":video}}};
+    var videoActivity = {"id":"https://www.youtube.com/watch?v=" + video, "definition":{"name": {"en-US":video}, "type": "http://activitystrea.ms/schema/1.0/video"}};
 
     function initYT() {
       var tag = document.createElement('script');
