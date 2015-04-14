@@ -65,20 +65,16 @@
           stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
         }*/
 
-        if (ISOTime == "PT0S") {
-          stmt["verb"] = ADL.verbs.launched;
-        } else {
-          stmt["verb"] = ADL.verbs.resumed;
-          stmt["result"] = {"extensions":{"resultExt:resumed":ISOTime}};
-        }
+        stmt["verb"] = {"id": "http://activitystrea.ms/schema/1.0/play"};
+        stmt["result"] = {"extensions":{"http://id.tincanapi.com/extension/starting-point":ISOTime}};
         return stmt;
       }
 
       function pauseVideo(ISOTime) {
           var stmt = {"actor":actor, 
-                  "verb":ADL.verbs.suspended,
+                  "verb": "http://id.tincanapi.com/verb/paused",
                   "object":videoActivity, 
-                  "result":{"extensions":{"resultExt:paused":ISOTime}}};
+                  "result":{"extensions":{"http://id.tincanapi.com/extension/ending-point":ISOTime}}};
 
           /*if (competency) {
               stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
@@ -88,9 +84,10 @@
 
       function completeVideo(ISOTime) {
           var stmt = {"actor":actor, 
-                  "verb":ADL.verbs.completed, 
+                  "verb":"http://activitystrea.ms/schema/1.0/complete", 
                   "object":videoActivity, 
-                  "result":{"duration":ISOTime, "completion": true}};
+                  "result":{"completion": true},
+                  "context":{"extensions":["http://id.tincanapi.com/extension/ending-point": ISOTime]}};
 
           /*if (competency) {
               stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
