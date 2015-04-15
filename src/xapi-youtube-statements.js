@@ -10,9 +10,17 @@
         return true;
       }
       catch(e) { return false; }
-    } 
+    }
 
     XAPIYoutubeStatements = function() {
+      
+      var actor = {"mbox":"mailto:anon@example.com", "name":"anonymous"};
+      var videoActivity = {};
+      
+      this.changeConfig = function(options) {
+        actor = options.actor;
+        videoActivity = options.videoActivity;
+      }
 
       this.onPlayerReady = function(event) {
         //event.target.playVideo();
@@ -58,44 +66,51 @@
         }
         ADL.XAPIYoutubeStatements.onStateChangeCallback(e, stmt);
       }
+      
+      function buildStatement(stmt) {
+        var stmt = stmt;
+        stmt.actor = actor;
+        stmt.object = videoActivity;
+        return stmt;
+      }
 
       function playVideo(ISOTime) {
-        var stmt = {"actor":actor, "object": videoActivity};
+        var stmt = {};
         /*if (competency) {
           stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
         }*/
 
         if (ISOTime == "PT0S") {
-          stmt["verb"] = ADL.verbs.launched;
+          stmt.verb = ADL.verbs.launched;
         } else {
-          stmt["verb"] = ADL.verbs.resumed;
-          stmt["result"] = {"extensions":{"resultExt:resumed":ISOTime}};
+          stmt.verb = ADL.verbs.resumed;
+          stmt.result = {"extensions":{"resultExt:resumed":ISOTime}};
         }
-        return stmt;
+        return buildStatement(stmt);
       }
 
       function pauseVideo(ISOTime) {
-          var stmt = {"actor":actor, 
-                  "verb":ADL.verbs.suspended,
-                  "object":videoActivity, 
-                  "result":{"extensions":{"resultExt:paused":ISOTime}}};
+        var stmt = {};
+        
+        stmt.verb = ADL.verbs.suspended;
+        stmt.result = {"extensions":{"resultExt:paused":ISOTime}};
 
-          /*if (competency) {
-              stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-          }*/
-          return stmt;
+        /*if (competency) {
+            stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
+        }*/
+        return buildStatement(stmt);
       }
 
       function completeVideo(ISOTime) {
-          var stmt = {"actor":actor, 
-                  "verb":ADL.verbs.completed, 
-                  "object":videoActivity, 
-                  "result":{"duration":ISOTime, "completion": true}};
+        var stmt = {};
+        
+        stmt.verb = ADL.verbs.completed;
+        stmt.result = {"duration":ISOTime, "completion": true};
 
-          /*if (competency) {
-              stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-          }*/
-          return stmt;
+        /*if (competency) {
+            stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
+        }*/
+        return buildStatement(stmt);
       }
 
     }

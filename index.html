@@ -42,20 +42,13 @@
 
   <script>
 
-    // Auth for the LRS
-    ADL.XAPIWrapper.lrs['actor'] = JSON.stringify({"mbox":"mailto:anon@example.com", "name":"anonymous"});
-    var conf = {
-        "endpoint" : "https://lrs.adlnet.gov/xapi/",
-        "auth" : "Basic " + toBase64("xapi-tools:xapi-tools"),
-    };
-    
-    ADL.XAPIWrapper.changeConfig(conf);
-
     var video = "tlBbt5niQto"; // Change this to your video ID
 
-    // "global" variables read by ADL.XAPITrackYoutube
-    var actor = ADL.XAPIWrapper.lrs['actor'];
-    var videoActivity = {"id":"https://www.youtube.com/watch?v=" + video, "definition":{"name": {"en-US":video}}};
+    // "global" variables read by ADL.XAPIYoutubeStatements
+    /*ADL.XAPIYoutubeStatements.changeConfig({
+      "actor":  {"mbox":"mailto:anon@example.com", "name":"anonymous"},
+      "videoActivity": {"id":"https://www.youtube.com/watch?v=" + video, "definition":{"name": {"en-US":video}} }
+    });*/
 
     function initYT() {
       var tag = document.createElement('script');
@@ -77,14 +70,28 @@
         }
       });
     }
+    
+    initYT();
 
+
+    // Auth for the LRS
+    var conf = {
+        "endpoint" : "https://lrs.adlnet.gov/xapi/",
+        "auth" : "Basic " + toBase64("xapi-tools:xapi-tools"),
+    };
+    
+    ADL.XAPIWrapper.changeConfig(conf);
+
+    /*
+     * Custom Callbacks
+     */
     ADL.XAPIYoutubeStatements.onPlayerReadyCallback = function(stmt) {
       console.log("on ready callback");
     }
 
-    // Dispatch youtube statements with XAPIWrapper
+    // Dispatch Youtube statements with XAPIWrapper
     ADL.XAPIYoutubeStatements.onStateChangeCallback = function(event, stmt) {
-      console.log(event);
+      console.log(stmt);
       if (stmt) {
         stmt['timestamp'] = (new Date()).toISOString();
         ADL.XAPIWrapper.sendStatement(stmt, function(){});
@@ -92,8 +99,6 @@
         console.warn("no statement found in callback for event: " + event);
       }
     }
-
-    initYT();
 
   </script>
 
