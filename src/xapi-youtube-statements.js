@@ -13,7 +13,7 @@
     }
 
     XAPIYoutubeStatements = function() {
-      
+
       var actor = {"mbox":"mailto:anon@example.com", "name":"anonymous"};
       var videoActivity = {};
       
@@ -23,7 +23,6 @@
       }
 
       this.onPlayerReady = function(event) {
-        //event.target.playVideo();
         var message = "yt: player ready";
         log(message);
         ADL.XAPIYoutubeStatements.onPlayerReadyCallback(message);
