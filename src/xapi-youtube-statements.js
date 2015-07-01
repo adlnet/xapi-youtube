@@ -55,14 +55,16 @@
             break;
           default:
         }
+        playerPreviousState = event.data;
+        playerPreviousTime = ISOTime;
         ADL.XAPIYoutubeStatements.onStateChangeCallback(e, stmt);
       };
 
       function playVideo(ISOTime) {
             var stmt = {
                 "actor": actor,
-                "object": videoActivity,
                 "verb": { "id": "http://activitystrea.ms/schema/1.0/play", "display": { "en-US": "played" } },
+                "object": videoActivity,
                 "context": {
                     "contextActivities": {"category": {"id":"http://id.tincanapi.com/recipe/video/base/1"}},
                     "extensions": { "http://id.tincanapi.com/extension/starting-point": ISOTime }
@@ -71,16 +73,31 @@
             return stmt;
         }
 
-      function pauseVideo(ISOTime) {
+       function pauseVideo(ISOTime) {
             var stmt = {
                 "actor": actor,
-                "verb": { "id": "http://id.tincanapi.com/verb/paused", "display": { "en-US": "paused" } },
+                "verb": " ",
                 "object": videoActivity,
                 "context": {
-                    "contextActivities": { "category": { "id": "http://id.tincanapi.com/recipe/video/base/1" } },
-                    "extensions": { "http://id.tincanapi.com/extension/ending-point": ISOTime }
+                    "contextActivities": {
+                        "category": { "id": "http://id.tincanapi.com/recipe/video/base/1" }
+                    },
+                    "extensions": " "
                 }
             };
+            
+            if (playerPreviousState == 2 || playerPreviousState == 5) {
+                stmt.verb = { "id": "http://id.tincanapi.com/verb/skipped", "display": { "en-US": "skipped" } };
+                stmt.context.extensions = {
+                    "http://id.tincanapi.com/extension/starting-point": playerPreviousTime,
+                    "http://id.tincanapi.com/extension/ending-point": ISOTime
+                };
+
+            } else {
+                stmt.verb = { "id": "http://id.tincanapi.com/verb/paused", "display": { "en-US": "paused" } };
+                stmt.context.extensions = { "http://id.tincanapi.com/extension/ending-point": ISOTime };
+            }
+            
             return stmt;
         }
 
