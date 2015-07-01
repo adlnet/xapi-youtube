@@ -56,8 +56,8 @@
           default:
         }
         playerPreviousState = event.data;
-        playerPreviousTime = ISOTime;
         ADL.XAPIYoutubeStatements.onStateChangeCallback(e, stmt);
+        playerPreviousTime = ISOTime;
       };
 
       function playVideo(ISOTime) {
