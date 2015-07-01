@@ -13,13 +13,12 @@
     } 
 
     XAPIYoutubeStatements = function() {
-
       this.onPlayerReady = function(event) {
         //event.target.playVideo();
         var message = "yt: player ready";
         log(message);
         ADL.XAPIYoutubeStatements.onPlayerReadyCallback(message);
-      }
+      };
 
       this.onStateChange = function(event) {
         var curTime = player.getCurrentTime().toString();
@@ -57,45 +56,48 @@
           default:
         }
         ADL.XAPIYoutubeStatements.onStateChangeCallback(e, stmt);
-      }
+      };
 
       function playVideo(ISOTime) {
-        var stmt = {"actor":actor, "object": videoActivity};
-        /*if (competency) {
-          stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
-
-        stmt["verb"] = {"id": "http://activitystrea.ms/schema/1.0/play"};
-        stmt["result"] = {"extensions":{"http://id.tincanapi.com/extension/starting-point":ISOTime}};
-        return stmt;
-      }
+            var stmt = {
+                "actor": actor,
+                "object": videoActivity,
+                "verb": { "id": "http://activitystrea.ms/schema/1.0/play", "display": { "en-US": "played" } },
+                "context": {
+                    "contextActivities": {"category": {"id":"http://id.tincanapi.com/recipe/video/base/1"}},
+                    "extensions": { "http://id.tincanapi.com/extension/starting-point": ISOTime }
+                }
+            };
+            return stmt;
+        }
 
       function pauseVideo(ISOTime) {
-          var stmt = {"actor":actor, 
-                  "verb": "http://id.tincanapi.com/verb/paused",
-                  "object":videoActivity, 
-                  "result":{"extensions":{"http://id.tincanapi.com/extension/ending-point":ISOTime}}};
-
-          /*if (competency) {
-              stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-          }*/
-          return stmt;
-      }
+            var stmt = {
+                "actor": actor,
+                "verb": { "id": "http://id.tincanapi.com/verb/paused", "display": { "en-US": "paused" } },
+                "object": videoActivity,
+                "context": {
+                    "contextActivities": { "category": { "id": "http://id.tincanapi.com/recipe/video/base/1" } },
+                    "extensions": { "http://id.tincanapi.com/extension/ending-point": ISOTime }
+                }
+            };
+            return stmt;
+        }
 
       function completeVideo(ISOTime) {
-          var stmt = {"actor":actor, 
-                  "verb":"http://activitystrea.ms/schema/1.0/complete", 
-                  "object":videoActivity, 
-                  "result":{"completion": true},
-                  "context":{"extensions":["http://id.tincanapi.com/extension/ending-point": ISOTime]}};
-
-          /*if (competency) {
-              stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-          }*/
-          return stmt;
-      }
-
-    }
+            var stmt = {
+                "actor": actor,
+                "verb": { "id": "http://activitystrea.ms/schema/1.0/complete", "display": {"en-US": "completed"} },
+                "object": videoActivity,
+                "result": {"duration":ISOTime, "completion": true},
+                "context": {
+                    "contextActivities": { "category": { "id": "http://id.tincanapi.com/recipe/video/base/1" } },
+                    "extensions": { "http://id.tincanapi.com/extension/ending-point": ISOTime }
+                }
+            };
+            return stmt;
+        }
+    };
 
     ADL.XAPIYoutubeStatements = new XAPIYoutubeStatements();
 
