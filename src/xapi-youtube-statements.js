@@ -62,7 +62,7 @@
             var stmt = {
                 "actor": actor,
                 "object": videoActivity,
-                "verb": { "id": "http://activitystrea.ms/schema/1.0/play", "display": { "en-US": "play" } },
+                "verb": { "id": "http://activitystrea.ms/schema/1.0/play", "display": { "en-US": "played" } },
                 "context": {
                     "contextActivities": {"category": {"id":"http://id.tincanapi.com/recipe/video/base/1"}},
                     "extensions": { "http://id.tincanapi.com/extension/starting-point": ISOTime }
