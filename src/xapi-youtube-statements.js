@@ -10,11 +10,19 @@
         return true;
       }
       catch(e) { return false; }
-    } 
+    }
 
     XAPIYoutubeStatements = function() {
+
+      var actor = {"mbox":"mailto:anon@example.com", "name":"anonymous"};
+      var videoActivity = {};
+      
+      this.changeConfig = function(options) {
+        actor = options.actor;
+        videoActivity = options.videoActivity;
+      };
+
       this.onPlayerReady = function(event) {
-        //event.target.playVideo();
         var message = "yt: player ready";
         log(message);
         ADL.XAPIYoutubeStatements.onPlayerReadyCallback(message);
@@ -59,25 +67,27 @@
         ADL.XAPIYoutubeStatements.onStateChangeCallback(e, stmt);
         playerPreviousTime = ISOTime;
       };
+      function buildStatement(stmt) {
+        var stmt = stmt;
+        stmt.actor = actor;
+        stmt.object = videoActivity;
+        return stmt;
+      }
 
       function playVideo(ISOTime) {
             var stmt = {
-                "actor": actor,
                 "verb": { "id": "http://activitystrea.ms/schema/1.0/play", "display": { "en-US": "played" } },
-                "object": videoActivity,
                 "context": {
                     "contextActivities": {"category": {"id":"http://id.tincanapi.com/recipe/video/base/1"}},
                     "extensions": { "http://id.tincanapi.com/extension/starting-point": ISOTime }
                 }
             };
-            return stmt;
+            return buildStatement(stmt);
         }
 
        function pauseVideo(ISOTime) {
             var stmt = {
-                "actor": actor,
                 "verb": " ",
-                "object": videoActivity,
                 "context": {
                     "contextActivities": {
                         "category": { "id": "http://id.tincanapi.com/recipe/video/base/1" }
@@ -98,23 +108,21 @@
                 stmt.context.extensions = { "http://id.tincanapi.com/extension/ending-point": ISOTime };
             }
             
-            return stmt;
+            return buildStatement(stmt);
         }
 
       function completeVideo(ISOTime) {
             var stmt = {
-                "actor": actor,
                 "verb": { "id": "http://activitystrea.ms/schema/1.0/complete", "display": {"en-US": "completed"} },
-                "object": videoActivity,
                 "result": {"duration":ISOTime, "completion": true},
                 "context": {
                     "contextActivities": { "category": { "id": "http://id.tincanapi.com/recipe/video/base/1" } },
                     "extensions": { "http://id.tincanapi.com/extension/ending-point": ISOTime }
                 }
             };
-            return stmt;
+            return buildStatement(stmt);
         }
-    };
+    }
 
     ADL.XAPIYoutubeStatements = new XAPIYoutubeStatements();
 
