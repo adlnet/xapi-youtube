@@ -47,7 +47,7 @@
     // "global" variables read by ADL.XAPIYoutubeStatements
     ADL.XAPIYoutubeStatements.changeConfig({
       "actor":  {"mbox":"mailto:anon@example.com", "name":"anonymous"},
-      "videoActivity": {"id":"https://www.youtube.com/watch?v=" + video, "definition":{"name": {"en-US":video}} }
+      "videoActivity": {"id":"https://www.youtube.com/watch?v=" + video, "definition":{"name": {"en-US":video}, "type": "http://activitystrea.ms/schema/1.0/video"}}
     });
 
     function initYT() {

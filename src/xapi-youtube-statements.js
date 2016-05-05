@@ -20,13 +20,13 @@
       this.changeConfig = function(options) {
         actor = options.actor;
         videoActivity = options.videoActivity;
-      }
+      };
 
       this.onPlayerReady = function(event) {
         var message = "yt: player ready";
         log(message);
         ADL.XAPIYoutubeStatements.onPlayerReadyCallback(message);
-      }
+      };
 
       this.onStateChange = function(event) {
         var curTime = player.getCurrentTime().toString();
@@ -63,9 +63,10 @@
             break;
           default:
         }
+        playerPreviousState = event.data;
         ADL.XAPIYoutubeStatements.onStateChangeCallback(e, stmt);
-      }
-      
+        playerPreviousTime = ISOTime;
+      };
       function buildStatement(stmt) {
         var stmt = stmt;
         stmt.actor = actor;
@@ -74,44 +75,53 @@
       }
 
       function playVideo(ISOTime) {
-        var stmt = {};
-        /*if (competency) {
-          stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
-
-        if (ISOTime == "PT0S") {
-          stmt.verb = ADL.verbs.launched;
-        } else {
-          stmt.verb = ADL.verbs.resumed;
-          stmt.result = {"extensions":{"resultExt:resumed":ISOTime}};
+            var stmt = {
+                "verb": { "id": "http://activitystrea.ms/schema/1.0/play", "display": { "en-US": "played" } },
+                "context": {
+                    "contextActivities": {"category": {"id":"http://id.tincanapi.com/recipe/video/base/1"}},
+                    "extensions": { "http://id.tincanapi.com/extension/starting-point": ISOTime }
+                }
+            };
+            return buildStatement(stmt);
         }
-        return buildStatement(stmt);
-      }
 
-      function pauseVideo(ISOTime) {
-        var stmt = {};
-        
-        stmt.verb = ADL.verbs.suspended;
-        stmt.result = {"extensions":{"resultExt:paused":ISOTime}};
+       function pauseVideo(ISOTime) {
+            var stmt = {
+                "verb": " ",
+                "context": {
+                    "contextActivities": {
+                        "category": { "id": "http://id.tincanapi.com/recipe/video/base/1" }
+                    },
+                    "extensions": " "
+                }
+            };
+            
+            if (playerPreviousState == 2 || playerPreviousState == 5) {
+                stmt.verb = { "id": "http://id.tincanapi.com/verb/skipped", "display": { "en-US": "skipped" } };
+                stmt.context.extensions = {
+                    "http://id.tincanapi.com/extension/starting-point": playerPreviousTime,
+                    "http://id.tincanapi.com/extension/ending-point": ISOTime
+                };
 
-        /*if (competency) {
-            stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
-        return buildStatement(stmt);
-      }
+            } else {
+                stmt.verb = { "id": "http://id.tincanapi.com/verb/paused", "display": { "en-US": "paused" } };
+                stmt.context.extensions = { "http://id.tincanapi.com/extension/ending-point": ISOTime };
+            }
+            
+            return buildStatement(stmt);
+        }
 
       function completeVideo(ISOTime) {
-        var stmt = {};
-        
-        stmt.verb = ADL.verbs.completed;
-        stmt.result = {"duration":ISOTime, "completion": true};
-
-        /*if (competency) {
-            stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
-        return buildStatement(stmt);
-      }
-
+            var stmt = {
+                "verb": { "id": "http://activitystrea.ms/schema/1.0/complete", "display": {"en-US": "completed"} },
+                "result": {"duration":ISOTime, "completion": true},
+                "context": {
+                    "contextActivities": { "category": { "id": "http://id.tincanapi.com/recipe/video/base/1" } },
+                    "extensions": { "http://id.tincanapi.com/extension/ending-point": ISOTime }
+                }
+            };
+            return buildStatement(stmt);
+        }
     }
 
     ADL.XAPIYoutubeStatements = new XAPIYoutubeStatements();
