@@ -7,6 +7,12 @@ These statements can be dispatched to an LRS with xapiwrapper.min.js using a cus
 
 Check out http://adlnet.github.io/xapi-youtube for a live demo.
 
+#Installaion
+
+  1. run `git clone https://github.com/adlnet/xapi-youtube`
+
+  2. open index.html
+
 ## License
    Copyright &copy;2016 Advanced Distributed Learning
 
