@@ -7,6 +7,44 @@ These statements can be dispatched to an LRS with xapiwrapper.min.js using a cus
 
 Check out http://adlnet.github.io/xapi-youtube for a live demo.
 
+## Installing
+
+`git clone https://github.com/adlnet/xapi-youtube` or download using the download [link](https://github.com/adlnet/xapi-youtube/archive/master.zip) 
+
+## Configuration
+
+In index.html change:
+
+Video ID
+```javascript
+var video = "tlBbt5niQto"; // Change this to your video ID
+```
+
+Update actor credentials
+```javascript
+// "global" variables read by ADL.XAPIYoutubeStatements
+ADL.XAPIYoutubeStatements.changeConfig({
+  "actor":  {"mbox":"mailto:anon@example.com", "name":"anonymous"},
+  "videoActivity": {"id":"https://www.youtube.com/watch?v=" + video, "definition":{"name": {"en-US":video}} }
+});
+```
+Update xAPIWrapper information
+```javascript
+// Auth for the LRS
+var conf = {
+    "endpoint" : "https://lrs.adlnet.gov/xapi/",
+    "auth" : "Basic " + toBase64("xapi-tools:xapi-tools"),
+};
+```
+
+## Use
+Host the github project files on your server. Launch index.html.
+
+##Examples
+See [xapi-youtube-statements.js](https://github.com/adlnet/xapi-youtube/blob/master/src/xapi-youtube-statements.js) for examples on how to integrate with IFrame.
+
+For more information on how to dispach statements to an LRS, see [our example](http://adlnet.github.io/xapi-youtube)
+
 ## License
    Copyright &copy;2016 Advanced Distributed Learning
 
