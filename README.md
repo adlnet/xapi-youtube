@@ -45,6 +45,9 @@ See [xapi-youtube-statements.js](https://github.com/adlnet/xapi-youtube/blob/mas
 
 For more information on how to dispach statements to an LRS, see [our example](http://adlnet.github.io/xapi-youtube)
 
+## Contributing to the project
+We welcome contributions to this project. Fork this repository, make changes, and submit pull requests. If you're not comfortable with editing the code, please [submit an issue](https://github.com/adlnet/xapi-youtube/issues) and we'll be happy to address it. 
+
 ## License
    Copyright &copy;2016 Advanced Distributed Learning
 
