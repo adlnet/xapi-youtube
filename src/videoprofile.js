@@ -4,9 +4,9 @@ ADL.videoprofile =
 {
     "metadata":
     {
-    //   "@context": "http://xapi.vocab.pub/vocabulary/context.jsonld",
-    //   "@id": "https://w3id.org/xapi/video",
-    //   "@type": "ConceptScheme",
+      "@context": "http://xapi.vocab.pub/vocabulary/context.jsonld",
+      "@id": "https://w3id.org/xapi/video",
+      "@type": "ConceptScheme",
       "prefLabel": {
       	"en": "Video Profile Vocabulary"
       },
@@ -22,6 +22,7 @@ ADL.videoprofile =
       "wasGeneratedBy": {
         "name": {
           "en": "xAPI Video Community of Practice"
+        }
       }
     },
     "activity-types":
@@ -529,7 +530,6 @@ ADL.videoprofile =
             "en": "Used to express that the actor ended a video. Any statements after this in the current video session is ignored."
           }
         }
-      }
     }
 };
 

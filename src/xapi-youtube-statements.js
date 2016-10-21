@@ -81,13 +81,12 @@
         }*/
 
         if (ISOTime == "PT0S") {
-          console.log("Ciao");
-          console.log(ADL);
-          stmt.verb = ADL.videoprofile.references.initialized;
-        //   stmt.verb = ADL.verbs.launched;
+            stmt.verb = ADL.verbs.initialized;
         } else {
-          stmt.verb = ADL.videoprofile.verbs.played;
-        //   stmt.verb = ADL.verbs.resumed;
+          stmt.verb = {
+              id: ADL.videoprofile.verbs.played['@id'],
+              display: ADL.videoprofile.verbs.played.prefLabel
+          };
           stmt.result = {"extensions":{"resultExt:resumed":ISOTime}};
         }
         return buildStatement(stmt);
@@ -96,7 +95,10 @@
       function pauseVideo(ISOTime) {
         var stmt = {};
 
-        stmt.verb = "https://w3id.org/xapi/video/verbs/paused";
+        stmt.verb = {
+            id: ADL.videoprofile.verbs.paused['@id'],
+            display: ADL.videoprofile.verbs.paused.prefLabel
+        };
         // stmt.verb = ADL.verbs.suspended;
         stmt.result = {"extensions":{"resultExt:paused":ISOTime}};
 
@@ -109,8 +111,7 @@
       function completeVideo(ISOTime) {
         var stmt = {};
 
-        stmt.verb = "http://adlnet.gov/expapi/verbs/completed";
-        // stmt.verb = ADL.verbs.completed;
+        stmt.verb = ADL.verbs.completed;
         stmt.result = {"duration":ISOTime, "completion": true};
 
         /*if (competency) {
