@@ -1,5 +1,5 @@
 (function(ADL){
-    
+
     var debug = true;
     var log = function(message)
     {
@@ -16,7 +16,7 @@
 
       var actor = {"mbox":"mailto:anon@example.com", "name":"anonymous"};
       var videoActivity = {};
-      
+
       this.changeConfig = function(options) {
         actor = options.actor;
         videoActivity = options.videoActivity;
@@ -65,7 +65,7 @@
         }
         ADL.XAPIYoutubeStatements.onStateChangeCallback(e, stmt);
       }
-      
+
       function buildStatement(stmt) {
         var stmt = stmt;
         stmt.actor = actor;
@@ -73,6 +73,7 @@
         return stmt;
       }
 
+      // Referencing http://xapi.vocab.pub/datasets/video/
       function playVideo(ISOTime) {
         var stmt = {};
         /*if (competency) {
@@ -80,9 +81,13 @@
         }*/
 
         if (ISOTime == "PT0S") {
-          stmt.verb = ADL.verbs.launched;
+          console.log("Ciao");
+          console.log(ADL);
+          stmt.verb = ADL.videoprofile.references.initialized;
+        //   stmt.verb = ADL.verbs.launched;
         } else {
-          stmt.verb = ADL.verbs.resumed;
+          stmt.verb = ADL.videoprofile.verbs.played;
+        //   stmt.verb = ADL.verbs.resumed;
           stmt.result = {"extensions":{"resultExt:resumed":ISOTime}};
         }
         return buildStatement(stmt);
@@ -90,8 +95,9 @@
 
       function pauseVideo(ISOTime) {
         var stmt = {};
-        
-        stmt.verb = ADL.verbs.suspended;
+
+        stmt.verb = "https://w3id.org/xapi/video/verbs/paused";
+        // stmt.verb = ADL.verbs.suspended;
         stmt.result = {"extensions":{"resultExt:paused":ISOTime}};
 
         /*if (competency) {
@@ -102,8 +108,9 @@
 
       function completeVideo(ISOTime) {
         var stmt = {};
-        
-        stmt.verb = ADL.verbs.completed;
+
+        stmt.verb = "http://adlnet.gov/expapi/verbs/completed";
+        // stmt.verb = ADL.verbs.completed;
         stmt.result = {"duration":ISOTime, "completion": true};
 
         /*if (competency) {
