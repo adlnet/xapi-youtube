@@ -26,7 +26,7 @@
       <div class="form-group col-md-12">
 
         <div id="player"></div>
-        
+
         <p>This example uses minimal javascript and the youtube <a href="https://developers.google.com/youtube/iframe_api_reference" target="_blank">iframe API</a>.</p>
         <p>Statements are built with xapi-youtube-statements.js and dispatched to an LRS with xapiwrapper.min.js using a custom ADL.XAPIYoutubeStatements.onStateChangeCallback function.</p>
         <p>You can view statements <a href="http://adlnet.github.io/xapi-statement-viewer/">with the statement viewer</a>.</p>
@@ -34,10 +34,11 @@
       </div><!-- .col-md-12 -->
 
     </div><!-- .row -->
-  
+
   </section><!-- .container -->
 
   <script type="text/javascript" src="lib/xapiwrapper.min.js"></script>
+  <script type="text/javascript" src="src/videoprofile.js"></script>
   <script type="text/javascript" src="src/xapi-youtube-statements.js"></script>
 
   <script>
@@ -70,7 +71,7 @@
         }
       });
     }
-    
+
     initYT();
 
 
@@ -79,7 +80,7 @@
         "endpoint" : "https://lrs.adlnet.gov/xapi/",
         "auth" : "Basic " + toBase64("xapi-tools:xapi-tools"),
     };
-    
+
     ADL.XAPIWrapper.changeConfig(conf);
 
     /*
