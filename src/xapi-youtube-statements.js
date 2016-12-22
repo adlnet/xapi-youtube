@@ -74,7 +74,7 @@
       }
 
       function parseTime(time){
-        return time.slice(2,5);
+        return time.slice(2,-1);
       }
 
       // Referencing http://xapi.vocab.pub/datasets/video/
@@ -85,7 +85,7 @@
           stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
         }*/
 
-        if (pTime == '0.0' || pTime == '0S') {
+        if (pTime == '0.00' || pTime == '0') {
             stmt.verb = ADL.verbs.initialized;
         } else {
           stmt.verb = {
