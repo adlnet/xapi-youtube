@@ -73,14 +73,19 @@
         return stmt;
       }
 
+      function parseTime(time){
+        return time.slice(2,5);
+      }
+
       // Referencing http://xapi.vocab.pub/datasets/video/
       function playVideo(ISOTime) {
         var stmt = {};
+        var pTime = parseTime(ISOTime);
         /*if (competency) {
           stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
         }*/
 
-        if (ISOTime == "PT0S") {
+        if (pTime == '0.0' || pTime == '0S') {
             stmt.verb = ADL.verbs.initialized;
         } else {
           stmt.verb = {
