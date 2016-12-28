@@ -73,7 +73,7 @@
         return stmt;
       }
 
-      var makeNum = function(time) { return Number(time.slice(2, -1)); };
+      var convertISOSecondsToNumber = function(time) { return Number(time.slice(2, -1)); };
 
       // Referencing http://xapi.vocab.pub/datasets/video/
       function playVideo(ISOTime) {
@@ -82,7 +82,7 @@
           stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
         }*/
 
-        if (makeNum(ISOTime) === 0) {
+        if (convertISOSecondsToNumber(ISOTime) === 0) {
             stmt.verb = ADL.verbs.initialized;
         } else {
           stmt.verb = {
