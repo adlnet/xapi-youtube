@@ -73,7 +73,7 @@
         return stmt;
       }
 
-      var makeNum = function(time) { return Number(time.slice(2, -1)); }
+      var makeNum = function(time) { return Number(time.slice(2, -1)); };
 
       // Referencing http://xapi.vocab.pub/datasets/video/
       function playVideo(ISOTime) {
