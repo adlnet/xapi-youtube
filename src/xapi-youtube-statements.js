@@ -14,22 +14,24 @@
 
     XAPIYoutubeStatements = function() {
 
-      var actor = {"mbox":"mailto:anon@example.com", "name":"anonymous"};
-      var videoActivity = {};
+      var actor = {};
+      var object = {};
+      var context = {};
+
       var started = false;
       var seeking = false;
       var prevTime = 0.0;
       var completed = false;
 
-      this.changeConfig = function(options) {
-        actor = options.actor;
-        videoActivity = options.videoActivity;
+      this.changeConfig = function(myXAPI) {
+        actor = myXAPI.actor;
+        object = myXAPI.object;
+        context = myXAPI.context;
       }
 
       this.onPlayerReady = function(event) {
         var message = "yt: player ready";
         log(message);
-        ADL.XAPIYoutubeStatements.onPlayerReadyCallback(message);
         window.onunload = exitVideo;
       }
 
@@ -77,12 +79,11 @@
         if (stmt){
           var stmt = stmt;
           stmt.actor = actor;
-          stmt.object = videoActivity;
+          stmt.object = object;
+          stmt.context = context;
         }
         return stmt;
       }
-
-      var convertISOSecondsToNumber = function(time) { return Number(time.slice(2, -1)); };
 
       function initializeVideo(ISOTime) {
         var stmt = {};
@@ -97,14 +98,11 @@
 
       function playVideo(ISOTime) {
         var stmt = {};
-        /*if (competency) {
-          stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
 
         // calculate time from paused state
         var elapTime = (Date.now() - prevTime) / 1000.0;
 
-        if (!started || elapTime > 0.3) {
+        if (!started || elapTime > 0.2) {
           log("yt: playing");
           stmt.verb = {
             id: ADL.videoprofile.verbs.played['@id'],
@@ -140,10 +138,6 @@
         else {
           seeking = false;
         }
-
-        /*if (competency) {
-            stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
       }
 
       function seekVideo(ISOTime) {
@@ -171,9 +165,7 @@
         }
         stmt.result = {"duration":ISOTime, "completion": true};
         completed = true;
-        /*if (competency) {
-            stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
+
         return buildStatement(stmt);
       }
 
