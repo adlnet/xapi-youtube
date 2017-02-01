@@ -7,6 +7,8 @@ These statements can be dispatched to an LRS with xapiwrapper.min.js using a cus
 
 Check out http://adlnet.github.io/xapi-youtube for a live demo.
 
+This script also uses [xAPI Launch](https://github.com/adlnet/xapi-launch) to establish the connection to the LRS from our application.
+
 ## Installing
 
 `git clone https://github.com/adlnet/xapi-youtube` or download using the download [link](https://github.com/adlnet/xapi-youtube/archive/master.zip) 
