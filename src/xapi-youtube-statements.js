@@ -1,5 +1,5 @@
 (function(ADL){
-    
+
     var debug = true;
     var log = function(message)
     {
@@ -14,18 +14,25 @@
 
     XAPIYoutubeStatements = function() {
 
-      var actor = {"mbox":"mailto:anon@example.com", "name":"anonymous"};
-      var videoActivity = {};
-      
-      this.changeConfig = function(options) {
-        actor = options.actor;
-        videoActivity = options.videoActivity;
+      var actor = {};
+      var object = {};
+      var context = {};
+
+      var started = false;
+      var seeking = false;
+      var prevTime = 0.0;
+      var completed = false;
+
+      this.changeConfig = function(myXAPI) {
+        actor = myXAPI.actor;
+        object = myXAPI.object;
+        context = myXAPI.context;
       }
 
       this.onPlayerReady = function(event) {
         var message = "yt: player ready";
         log(message);
-        ADL.XAPIYoutubeStatements.onPlayerReadyCallback(message);
+        window.onunload = exitVideo;
       }
 
       this.onStateChange = function(event) {
@@ -37,6 +44,7 @@
           case -1:
             e = "unstarted";
             log("yt: " + e);
+            stmt = initializeVideo(ISOTime);
             break;
           case 0:
             e = "ended";
@@ -45,13 +53,12 @@
             break;
           case 1:
             e = "playing";
-            log("yt: " + e);
             stmt = playVideo(ISOTime);
             break;
           case 2:
             e = "paused";
-            log("yt: " + e);
-            stmt = pauseVideo(ISOTime);
+            prevTime = Date.now();
+            setTimeout(function() {pauseVideo(ISOTime);}, 100);
             break;
           case 3:
             e = "buffering";
@@ -63,53 +70,131 @@
             break;
           default:
         }
-        ADL.XAPIYoutubeStatements.onStateChangeCallback(e, stmt);
+        if (stmt){
+          ADL.XAPIWrapper.sendStatement(stmt);
+        }
       }
-      
+
       function buildStatement(stmt) {
-        var stmt = stmt;
-        stmt.actor = actor;
-        stmt.object = videoActivity;
+        if (stmt){
+          var stmt = stmt;
+          stmt.actor = actor;
+          stmt.object = object;
+          stmt.context = context;
+        }
         return stmt;
+      }
+
+      function initializeVideo(ISOTime) {
+        var stmt = {};
+
+        stmt.verb = {
+          id: ADL.videoprofile.references.initialized['@id'],
+          display: {"en-US": "initialized"}
+        };
+
+        return buildStatement(stmt);
       }
 
       function playVideo(ISOTime) {
         var stmt = {};
-        /*if (competency) {
-          stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
 
-        if (ISOTime == "PT0S") {
-          stmt.verb = ADL.verbs.launched;
-        } else {
-          stmt.verb = ADL.verbs.resumed;
+        // calculate time from paused state
+        var elapTime = (Date.now() - prevTime) / 1000.0;
+
+        if (!started || elapTime > 0.2) {
+          log("yt: playing");
+          stmt.verb = {
+            id: ADL.videoprofile.verbs.played['@id'],
+            display: ADL.videoprofile.verbs.played.prefLabel
+          };
           stmt.result = {"extensions":{"resultExt:resumed":ISOTime}};
+          started = true;
         }
+        else {
+          log("yt: seeking");
+          seeking = true;
+          return seekVideo(ISOTime);
+        }
+
         return buildStatement(stmt);
       }
 
       function pauseVideo(ISOTime) {
         var stmt = {};
-        
-        stmt.verb = ADL.verbs.suspended;
-        stmt.result = {"extensions":{"resultExt:paused":ISOTime}};
 
-        /*if (competency) {
-            stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
+        // check for seeking
+        if (!seeking) {
+          log("yt: paused");
+          stmt.verb = {
+            id: ADL.videoprofile.verbs.paused['@id'],
+            display: ADL.videoprofile.verbs.paused.prefLabel
+          };
+          stmt.result = {"extensions":{"resultExt:paused":ISOTime}};
+
+          // manually send 'paused' statement because of interval delay
+          ADL.XAPIWrapper.sendStatement(buildStatement(stmt));
+        }
+        else {
+          seeking = false;
+        }
+      }
+
+      function seekVideo(ISOTime) {
+        var stmt = {};
+
+        stmt.verb = {
+          id: ADL.videoprofile.verbs.seeked['@id'],
+          display: ADL.videoprofile.verbs.seeked.prefLabel
+        }
+        stmt.result = {"extensions":{"resultExt:seeked":ISOTime}};
+
         return buildStatement(stmt);
       }
 
       function completeVideo(ISOTime) {
-        var stmt = {};
-        
-        stmt.verb = ADL.verbs.completed;
-        stmt.result = {"duration":ISOTime, "completion": true};
+        if (completed) {
+          return null;
+        }
 
-        /*if (competency) {
-            stmt["context"] = {"contextActivities":{"other" : [{"id": "compID:" + competency}]}};
-        }*/
+        var stmt = {};
+
+        stmt.verb = {
+          id: ADL.videoprofile.references.completed['@id'],
+          display: {"en-US": "completed"}
+        }
+        stmt.result = {"duration":ISOTime, "completion": true};
+        completed = true;
+
         return buildStatement(stmt);
+      }
+
+      function exitVideo() {
+        if (!started) {
+          return;
+        }
+
+        var stmt = {};
+        var e = "";
+
+        // 'terminated' statement for completed video
+        if (completed) {
+          e = "terminated";
+          stmt.verb = {
+            id: ADL.videoprofile.references.terminated['@id'],
+            display: { "en-US": "terminated" }
+          };
+          // 'abandoned' statement for incomplete video
+        } else {
+          e = "abandoned";
+          stmt.verb = {
+            id: ADL.videoprofile.references.abandoned['@id'],
+            display: { "en-US": "abandoned" }
+          };
+        }
+
+        // send statement immediately to avoid event delay
+        ADL.XAPIWrapper.sendStatement(buildStatement(stmt));
       }
 
     }
