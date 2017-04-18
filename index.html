@@ -7,7 +7,7 @@
   <meta name="author" content="ADL">
   <link rel="icon" href="favicon.ico">
 
-  <title>xAPI Youtube Video Tracking</title>
+  <title>xAPI Video Tracking</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 </head>
@@ -17,8 +17,8 @@
   <section class="container">
 
     <div class="page-header">
-      <h1 class="text-primary"><i class="fa fa-youtube"></i> xAPI Youtube Video Tracking</h1>
-      <h3 class="text-muted">Send Youtube Video interactions to an LRS with xAPI</h3>
+      <h1 class="text-primary"> xAPI Video Tracking</h1>
+      <h3 class="text-muted">Send video interactions to an LRS with multiple media xAPIs</h3>
     </div>
 
     <div class="row">
@@ -39,61 +39,94 @@
 
   <script type="text/javascript" src="lib/xapiwrapper.min.js"></script>
   <script type="text/javascript" src="src/videoprofile.js"></script>
-  <script type="text/javascript" src="src/xapi-youtube-statements.js"></script>
+  <script type="text/javascript" src="src/xapi-video-statements.js"></script>
+  <script id="playerLib" type="text/javascript"></script>
 
   <script>
 
-  var video = "tlBbt5niQto"; // Change this to your video ID
-
-  var myXAPI = {};
-
-  ADL.launch(function (err, launchdata, xAPIWrapper) {
-    if (!err) {
-      ADL.XAPIWrapper = xAPIWrapper;
-      myXAPI.actor = launchdata.actor;
-      if (launchdata.customData.content) {
-        myXAPI.context = {contextActivities: {grouping: [{id: launchdata.customData.content}]}};
+    function initPlayerLib() {
+      var tag = document.getElementById('playerLib');
+      if (youtubePlayer) {
+        tag.src = "src/xapi-youtube-statements.js";
       } else {
-        myXAPI.context = {contextActivities: {grouping: [{id: "http://adlnet.gov/event/xapiworkshop/launch/no-customData"}]}};
+        tag.src = "src/xapi-html-statements.js";
       }
-    } else {
-      ADL.XAPIWrapper.changeConfig({
-        "endpoint":"https://lrs.adlnet.gov/xapi/",
-        "user":"xapi-workshop",
-        "password":"password1234"
-      });
-      myXAPI.actor = {account: {homePage:"http://example.com/watch-video", name: "youtube"}};
-      myXAPI.context = {contextActivities: {grouping: [{id: "http://adlnet.gov/event/xapiworkshop/non-launch"}]}};
     }
 
-    myXAPI.object = {id: "https://www.youtube.com/watch?v="+video, definition: {name: {"en-US": video}}};
+    var youtubePlayer = false; // 'false' will use default player, 'true' uses HTML5 media
+    initPlayerLib();
 
-    ADL.XAPIYoutubeStatements.changeConfig(myXAPI);
+    var video = ""; // Change this to your video ID
 
-  }, true);
-
-  function initYT() {
-    var tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-  }
-
-  var player;
-  function onYouTubeIframeAPIReady() {
-    player = new YT.Player('player', {
-      height: '390',
-      width: '640',
-      videoId: video,
-      playerVars: { 'autoplay': 0, 'disablekb': 1 },
-      events: {
-        'onReady': ADL.XAPIYoutubeStatements.onPlayerReady,
-        'onStateChange': ADL.XAPIYoutubeStatements.onStateChange
+    var myXAPI = {};
+    ADL.launch(function (err, launchdata, xAPIWrapper) {
+      if (!err) {
+        ADL.XAPIWrapper = xAPIWrapper;
+        myXAPI.actor = launchdata.actor;
+        if (launchdata.customData.content) {
+          myXAPI.context = {contextActivities: {grouping: [{id: launchdata.customData.content}]}};
+        } else {
+          myXAPI.context = {contextActivities: {grouping: [{id: "http://adlnet.gov/event/xapiworkshop/launch/no-customData"}]}};
+        }
+      } else {
+        ADL.XAPIWrapper.changeConfig({
+          "endpoint":"https://lrs.adlnet.gov/xapi/",
+          "user":"xapi-workshop",
+          "password":"password1234"
+        });
+        myXAPI.actor = {account: {homePage:"http://example.com/watch-video", name: "unknown-user"}};
+        myXAPI.context = {contextActivities: {grouping: [{id: "http://adlnet.gov/event/xapiworkshop/non-launch"}]}};
       }
-    });
-  }
 
-  initYT();
+      if (youtubePlayer) {
+        video = "tlBbt5niQto";
+        myXAPI.object = {id: "https://www.youtube.com/watch?v="+video, definition: {name: {"en-US": video}}};
+      } else {
+        video = "example.mp4";
+        myXAPI.object = {id: "https://www.htmlmedia.com/"+video, definition: {name: {"en-US": video}}};
+      }
+
+      ADL.XAPIVideoStatements.changeConfig(myXAPI);
+
+    }, true);
+
+
+    // Using HTML media player
+    var player;
+    if (youtubePlayer == false) {
+      player = document.createElement('video');
+      player.id = video;
+      player.src = "assets/example.mp4";
+      player.width = 690;
+      player.height = 390;
+      player.controls = true;
+      document.getElementById('player').appendChild(player);
+
+      player.onloadedmetadata = function() {
+        ADL.XAPIHTMLStatements.onPlayerReady();
+        player.ontimeupdate = ADL.XAPIHTMLStatements.onStateChange;
+      };
+    }
+    // Using youtube media player
+    else {
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '690',
+          videoId: video,
+          playerVars: { 'autoplay': 0 },
+          events: {
+            'onReady': ADL.XAPIYoutubeStatements.onPlayerReady,
+            'onStateChange': ADL.XAPIYoutubeStatements.onStateChange
+          }
+        });
+      }
+    }
 
   </script>
 
